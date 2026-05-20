@@ -197,7 +197,20 @@ public class Level {
 	//Your code goes here! 
 	//Please make sure you read the rubric/directions carefully and implement the solution recursively!
 	private void water(int col, int row, Map map, int fullness) {
+		Water w = new Water(col, row, tileSize, tileset.getImage("Full_water"), this, 3);
+		map.addTile(col,row,w);
 		
+
+		if(col+1 < map.getTiles().length && !(map.getTiles()[col][row] instanceof Water) && !(map.getTiles() [col-1][row].isSolid())){
+			water(col+1,row,map,3);
+
+
+		}
+		if(col-1>= 0 && !(map.getTiles()[col][row] instanceof Water) && !(map.getTiles() [col+1][row].isSolid())){
+			water(col-1,row,map,3);
+
+
+		}
 	}
 
 
