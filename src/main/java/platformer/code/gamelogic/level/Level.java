@@ -226,7 +226,7 @@ public class Level {
 			
 			//or "land" as a full water block
 		}
-		else if (row+1 < map.getTiles()[col].length){ 
+		else if (row+1 < map.getTiles()[col].length ){ 
 			//if we can’t go down go left and right.
 			//if we just made a falling block, then right/left should be a full block
 		
