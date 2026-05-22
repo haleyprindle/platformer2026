@@ -55,7 +55,7 @@ public class Level {
 		restartLevel();
 	}
 
-	public LevelData getLevelData(){
+	public LevelData getLevelData() {
 		return leveldata;
 	}
 
@@ -89,7 +89,8 @@ public class Level {
 				else if (values[x][y] == 7)
 					tiles[x][y] = new SolidTile(xPosition, yPosition, tileSize, tileset.getImage("Grass"), this);
 				else if (values[x][y] == 8)
-					enemiesList.add(new Enemy(xPosition*tileSize, yPosition*tileSize, this)); // TODO: objects vs tiles
+					enemiesList.add(new Enemy(xPosition * tileSize, yPosition * tileSize, this)); // TODO: objects vs
+																									// tiles
 				else if (values[x][y] == 9)
 					tiles[x][y] = new Flag(xPosition, yPosition, tileSize, tileset.getImage("Flag"), this);
 				else if (values[x][y] == 10) {
@@ -167,10 +168,11 @@ public class Level {
 
 			for (int i = 0; i < flowers.size(); i++) {
 				if (flowers.get(i).getHitbox().isIntersecting(player.getHitbox())) {
-					if(flowers.get(i).getType() == 1)
+					if (flowers.get(i).getType() == 1)
 						water(flowers.get(i).getCol(), flowers.get(i).getRow(), map, 3);
-//					else
-//						addGas(flowers.get(i).getCol(), flowers.get(i).getRow(), map, 20, new ArrayList<Gas>());
+					// else
+					// addGas(flowers.get(i).getCol(), flowers.get(i).getRow(), map, 20, new
+					// ArrayList<Gas>());
 					flowers.remove(i);
 					i--;
 				}
@@ -191,35 +193,57 @@ public class Level {
 			camera.update(tslf);
 		}
 	}
-	
-	
-	//#############################################################################################################
-	//Your code goes here! 
-	//Please make sure you read the rubric/directions carefully and implement the solution recursively!
-	private void water(int col, int row, Map map, int fullness) {
 
-		Water w = new Water(col, row, tileSize, tileset.getImage("Full_water"), this, 3);
+	// #############################################################################################################
+	// Your code goes here!
+	// Please make sure you read the rubric/directions carefully and implement the
+	// solution recursively!
+	//pre-condition: x and y values have to be valid. The level has to be valid.
+	//post-condition: the water will flow if there is no solid block in the way.
+	// it will flow as a full block, then a half block on the right/left, then a quarter.
+	// If there's a ledge, the water will fall.
+	private void water(int col, int row, Map map, int fullness) {
+		java.awt.image.BufferedImage image = null;
+		if(fullness == 3)  image = tileset.getImage("Full_water");
+		if(fullness == 2)  image = tileset.getImage("Half_water");
+		if(fullness == 1)  image = tileset.getImage("Quarter_water");
+		if(fullness == 0)  image = tileset.getImage("Falling_water");
+
+		Water w = new Water(col, row, tileSize, image, this,fullness);
 		map.addTile(col,row,w);
 		
-		//while(!(map.getTiles()[col][row] instanceof Water) && (!(map.getTiles() [col+1][row].isSolid()) || !(map.getTiles() [col-1][row].isSolid()))){
-			if(col+1 < map.getTiles().length && !(map.getTiles()[col+1][row] instanceof Water) && !(map.getTiles() [col+1][row].isSolid())){
-				
-				water(col+1,row,map,fullness -1);
-				if(map.getTiles() [col][row+1].isSolid())
-					fullness=0;
-
-
+		//check if we should go down
+		if(row+1 < map.getTiles()[col].length && !map.getTiles() [col][row+1].isSolid()){
+			//go down
+			water(col, row+1, map, 0);
+		}
+		else{ 
+			//if we can’t go down go left and right.
+			//if we just made a falling block, then right/left should be a full block
+			if(fullness==0) 
+			{
+				fullness = 3;
 			}
-			if(col-1>= 0 && !(map.getTiles()[col-1][row] instanceof Water) && !(map.getTiles() [col-1][row].isSolid())){
-			water(col-1,row,map,fullness-1);
-				
-
+			else if(fullness>1){
+				fullness--;
 			}
-			
+			//right	
+			if(col+1 < map.getTiles().length){
+				Tile t = map.getTiles()[col+1][row];
+				if(!(t.isSolid() || t instanceof Water))
+					water(col+1, row, map, fullness);
+			}
+			//left
+			if(col-1 >= 0){
+				Tile t = map.getTiles()[col-1][row];
+				if(!(t.isSolid() || t instanceof Water))
+					water(col+1, row, map, fullness);
+			}
+
+		}
+		
 	
 	}
-
-
 
 	public void draw(Graphics g) {
 		g.translate((int) -camera.getX(), (int) -camera.getY());
